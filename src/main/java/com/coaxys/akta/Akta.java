@@ -68,6 +68,33 @@ public class Akta {
         return Optional.empty();
     }
 
+    public Optional<AktaFile> upload(String uid, String project, String fileName, String contentType, byte[] data) {
+        return upload(uid, project, "", fileName, contentType, data);
+    }
+
+    public Optional<AktaFile> upload(String uid, String project, String arbo, String fileName, String contentType, byte[] data) {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody formBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("uid", uid)
+                    .addFormDataPart("project", project)
+                    .addFormDataPart("arbo", arbo)
+                    .addFormDataPart("file", fileName, RequestBody.create(MediaType.parse(contentType), data))
+                    .build();
+
+            Request request = new Request.Builder().url(url + "/api/v1/upload?" + getAuthParams()).post(formBody).build();
+
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                return Optional.ofNullable(gson.fromJson(response.body().string(), AktaFile.class));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
     private String getAuthParams() {
         long timestamp = new Date().getTime();
         return "apiKey=" + apiKey + "&timestamp=" + timestamp + "&control=" + getControl(timestamp);
