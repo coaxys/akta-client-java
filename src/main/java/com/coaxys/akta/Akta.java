@@ -95,6 +95,62 @@ public class Akta {
         return Optional.empty();
     }
 
+    public Optional<AktaFile> edit(String uid, String project, String originFileName, String newFileName) {
+        return edit(uid, project, "", originFileName, "", newFileName);
+    }
+
+    public Optional<AktaFile> edit(String uid, String project, String originArbo, String originFileName, String newArbo, String newFileName) {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody formBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("uid", uid)
+                    .addFormDataPart("project", project)
+                    .addFormDataPart("originArbo", originArbo)
+                    .addFormDataPart("originFileName", originFileName)
+                    .addFormDataPart("newArbo", newArbo)
+                    .addFormDataPart("newFileName", newFileName)
+                    .build();
+
+            Request request = new Request.Builder().url(url + "/api/v1/edit?" + getAuthParams()).post(formBody).build();
+
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                return Optional.ofNullable(gson.fromJson(response.body().string(), AktaFile.class));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    public boolean delete(String uid, String project, String fileName) {
+        return delete(uid, project, "", fileName);
+    }
+
+    public boolean delete(String uid, String project, String arbo, String fileName) {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            RequestBody formBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("uid", uid)
+                    .addFormDataPart("project", project)
+                    .addFormDataPart("arbo", arbo)
+                    .addFormDataPart("fileName", fileName)
+                    .build();
+
+            Request request = new Request.Builder().url(url + "/api/v1/delete?" + getAuthParams()).post(formBody).build();
+
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null && response.body().string().equals("deleted")) {
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private String getAuthParams() {
         long timestamp = new Date().getTime();
         return "apiKey=" + apiKey + "&timestamp=" + timestamp + "&control=" + getControl(timestamp);
@@ -103,5 +159,4 @@ public class Akta {
     private String getControl(long timestamp) {
         return new String(Hex.encodeHex(DigestUtils.sha256(timestamp + privateApiKey + apiKey)));
     }
-
 }
