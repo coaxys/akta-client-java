@@ -1,4 +1,4 @@
-package com.coaxys.akta;
+package com.coaxys.akta.models;
 
 public class AktaFile {
 

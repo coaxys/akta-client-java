@@ -1,7 +1,10 @@
 package com.coaxys.akta;
 
 import com.coaxys.akta.exception.AktaException;
+import com.coaxys.akta.models.AktaFile;
+import com.coaxys.akta.models.AktaProject;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -9,10 +12,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class Akta {
@@ -159,5 +165,41 @@ public class Akta {
 
     private String getControl(long timestamp) {
         return new String(Hex.encodeHex(DigestUtils.sha256(timestamp + privateApiKey + apiKey)));
+    }
+
+    public List<AktaProject> projects(String uid) throws AktaException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url + "/api/v1/" + uid + "/projects?" + getAuthParams())
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                Type listType = new TypeToken<ArrayList<AktaProject>>() {
+                }.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        } catch (IOException e) {
+            throw new AktaException("Unable to retrieve your projects", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<AktaFile> projectFiles(String uid, String project) throws AktaException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url + "/api/v1/" + uid + "/" + project + "/files?" + getAuthParams())
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                Type listType = new TypeToken<ArrayList<AktaFile>>() {
+                }.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        } catch (IOException e) {
+            throw new AktaException("Unable to retrieve your projects", e);
+        }
+        return new ArrayList<>();
     }
 }
