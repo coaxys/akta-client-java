@@ -1,5 +1,6 @@
 package com.coaxys.akta;
 
+import com.coaxys.akta.exception.AktaException;
 import com.google.gson.Gson;
 import okhttp3.*;
 import org.apache.commons.codec.binary.Hex;
@@ -40,11 +41,11 @@ public class Akta {
         instance = new Akta(apiKey, privateApiKey, url);
     }
 
-    public Optional<AktaFile> upload(String uid, String project, File file) {
+    public Optional<AktaFile> upload(String uid, String project, File file) throws AktaException {
         return upload(uid, project, "", file);
     }
 
-    public Optional<AktaFile> upload(String uid, String project, String arbo, File file) {
+    public Optional<AktaFile> upload(String uid, String project, String arbo, File file) throws AktaException {
         try {
             Path mediaTypeSource = Paths.get(file.getAbsolutePath());
             OkHttpClient client = new OkHttpClient();
@@ -63,16 +64,16 @@ public class Akta {
                 return Optional.ofNullable(gson.fromJson(response.body().string(), AktaFile.class));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AktaException("Unable to upload your file", e);
         }
         return Optional.empty();
     }
 
-    public Optional<AktaFile> upload(String uid, String project, String fileName, String contentType, byte[] data) {
+    public Optional<AktaFile> upload(String uid, String project, String fileName, String contentType, byte[] data) throws AktaException {
         return upload(uid, project, "", fileName, contentType, data);
     }
 
-    public Optional<AktaFile> upload(String uid, String project, String arbo, String fileName, String contentType, byte[] data) {
+    public Optional<AktaFile> upload(String uid, String project, String arbo, String fileName, String contentType, byte[] data) throws AktaException {
         try {
             OkHttpClient client = new OkHttpClient();
             RequestBody formBody = new MultipartBody.Builder()
@@ -90,16 +91,16 @@ public class Akta {
                 return Optional.ofNullable(gson.fromJson(response.body().string(), AktaFile.class));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AktaException("Unable to upload your file", e);
         }
         return Optional.empty();
     }
 
-    public Optional<AktaFile> edit(String uid, String project, String originFileName, String newFileName) {
+    public Optional<AktaFile> edit(String uid, String project, String originFileName, String newFileName) throws AktaException {
         return edit(uid, project, "", originFileName, "", newFileName);
     }
 
-    public Optional<AktaFile> edit(String uid, String project, String originArbo, String originFileName, String newArbo, String newFileName) {
+    public Optional<AktaFile> edit(String uid, String project, String originArbo, String originFileName, String newArbo, String newFileName) throws AktaException {
         try {
             OkHttpClient client = new OkHttpClient();
             RequestBody formBody = new MultipartBody.Builder()
@@ -119,16 +120,16 @@ public class Akta {
                 return Optional.ofNullable(gson.fromJson(response.body().string(), AktaFile.class));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AktaException("Unable to edit your file", e);
         }
         return Optional.empty();
     }
 
-    public boolean delete(String uid, String project, String fileName) {
+    public boolean delete(String uid, String project, String fileName) throws AktaException {
         return delete(uid, project, "", fileName);
     }
 
-    public boolean delete(String uid, String project, String arbo, String fileName) {
+    public boolean delete(String uid, String project, String arbo, String fileName) throws AktaException {
         try {
             OkHttpClient client = new OkHttpClient();
             RequestBody formBody = new MultipartBody.Builder()
@@ -146,7 +147,7 @@ public class Akta {
                 return true;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AktaException("Unable to delete your file", e);
         }
         return false;
     }
