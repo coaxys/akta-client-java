@@ -13,22 +13,87 @@ Un client java pour [https://akta.coaxys.com](https://akta.coaxys.com).
 
 Utilisation
 -----------
-```
+#### Init (mandatory)
+```java
 Akta.init(apiKey, privateApiKey, url);
 ```
-```
+#### Upload 
+```java
 File file = new File("/path/to/file");
 try {
-    Akta.get().upload("your-uid", "your-projectname", file);
-} catch (ConfigurationException e) {
+    Optional<AktaFile> optionalAktaFile = Akta.get().upload("your-uid", "your-projectname", file);
+    if (optionalAktaFile.isPresent()) {
+        AktaFile aktaFile = optionalAktaFile.get();
+        // do something with your new AktaFile
+    }
+} catch (AktaException | ConfigurationException e) {
     e.printStackTrace();
 }
 ```
-```
+```java
 File file = new File("/path/to/file");
 try {
-    Akta.get().upload("your-uid", "your-projectname", "valid-slugified-arbo", file);
-} catch (ConfigurationException e) {
+    Optional<AktaFile> optionalAktaFile = Akta.get().upload("your-uid", "your-projectname", "valid/slugified-arbo", file);
+    if (optionalAktaFile.isPresent()) {
+        AktaFile aktaFile = optionalAktaFile.get();
+        // do something with your new AktaFile
+    }
+} catch (AktaException | ConfigurationException e) {
+    e.printStackTrace();
+}
+```
+#### List of your projects 
+```java
+try {
+    List<AktaProject> projects = Akta.get().projects("your-uid");
+    for (AktaProject aktaProject : projects) {
+        System.out.println(aktaProject);
+    }
+} catch (AktaException | ConfigurationException e) {
+    e.printStackTrace();
+}
+```
+#### List of a project root directories
+```java
+try {
+    List<String> projectDirectories = Akta.get().projectDirectories("your-uid", "your-projectname");
+    for (String directory : projectDirectories) {
+        System.out.println(directory);
+    }
+} catch (AktaException | ConfigurationException e) {
+    e.printStackTrace();
+}
+```
+#### List of a project directory sub-directories
+```java
+try {
+    List<String> projectDirectories = Akta.get().projectDirectories("your-uid", "your-projectname", "valid/slugified-arbo");
+    for (String directory : projectDirectories) {
+        System.out.println(directory);
+    }
+} catch (AktaException | ConfigurationException e) {
+    e.printStackTrace();
+}
+```
+#### List of all project files
+```java
+try {
+    List<AktaFile> files = Akta.get().projectFiles("your-uid", "your-projectname");
+    for (AktaFile aktaFile : files) {
+        System.out.println(aktaFile);
+    }
+} catch (AktaException | ConfigurationException e) {
+    e.printStackTrace();
+}
+```
+#### List of all project directory files
+```java
+try {
+    List<AktaFile> files = Akta.get().projectFiles("your-uid", "your-projectname", "valid/slugified-arbo");
+    for (AktaFile aktaFile : files) {
+        System.out.println(aktaFile);
+    }
+} catch (AktaException | ConfigurationException e) {
     e.printStackTrace();
 }
 ```
