@@ -185,10 +185,64 @@ public class Akta {
         return new ArrayList<>();
     }
 
+    public List<String> projectDirectories(String uid, String project) throws AktaException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url + "/api/v1/" + uid + "/" + project + "/directories?" + getAuthParams())
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                Type listType = new TypeToken<ArrayList<String>>() {
+                }.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        } catch (IOException e) {
+            throw new AktaException("Unable to retrieve your project directories", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<String> projectDirectories(String uid, String project, String arbo) throws AktaException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url + "/api/v1/" + uid + "/" + project + "/directories/" + arbo + "?" + getAuthParams())
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                Type listType = new TypeToken<ArrayList<String>>() {
+                }.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        } catch (IOException e) {
+            throw new AktaException("Unable to retrieve your project directories", e);
+        }
+        return new ArrayList<>();
+    }
+
     public List<AktaFile> projectFiles(String uid, String project) throws AktaException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url + "/api/v1/" + uid + "/" + project + "/files?" + getAuthParams())
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() == 200 && response.body() != null) {
+                Type listType = new TypeToken<ArrayList<AktaFile>>() {
+                }.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        } catch (IOException e) {
+            throw new AktaException("Unable to retrieve your projects", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<AktaFile> projectFiles(String uid, String project, String arbo) throws AktaException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url + "/api/v1/" + uid + "/" + project + "/files/" + arbo + "?" + getAuthParams())
                 .build();
         try {
             Response response = client.newCall(request).execute();
