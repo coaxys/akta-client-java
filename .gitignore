@@ -1,4 +1,4 @@
 .idea
 *.iml
 target/
-App.java
+**/App.java
