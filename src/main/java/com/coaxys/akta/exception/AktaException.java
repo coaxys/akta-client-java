@@ -1,14 +1,12 @@
 package com.coaxys.akta.exception;
 
-import java.io.IOException;
-
 public class AktaException extends Exception {
 
     public AktaException(String message) {
         super(message);
     }
 
-    public AktaException(String message, IOException exception) {
+    public AktaException(String message, Exception exception) {
         super(message, exception);
     }
 
