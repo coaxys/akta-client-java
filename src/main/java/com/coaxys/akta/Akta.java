@@ -1,6 +1,7 @@
 package com.coaxys.akta;
 
 import com.coaxys.akta.exception.AktaException;
+import com.coaxys.akta.exception.ConfigurationException;
 import com.coaxys.akta.models.AktaFile;
 import com.coaxys.akta.models.AktaProject;
 import com.google.gson.Gson;
@@ -9,7 +10,6 @@ import okhttp3.*;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -196,11 +196,12 @@ public class Akta {
                 Type listType = new TypeToken<ArrayList<String>>() {
                 }.getType();
                 return gson.fromJson(response.body().string(), listType);
+            } else {
+                throw new AktaException(response.code() + " - " + response.body().string());
             }
         } catch (IOException e) {
             throw new AktaException("Unable to retrieve your project directories", e);
         }
-        return new ArrayList<>();
     }
 
     public List<String> projectDirectories(String uid, String project, String arbo) throws AktaException {
