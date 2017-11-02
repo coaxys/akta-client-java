@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.tika.Tika;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,12 +56,22 @@ public class Akta {
         try {
             Path mediaTypeSource = Paths.get(file.getAbsolutePath());
             OkHttpClient client = new OkHttpClient();
+
+            String probeContentType = Files.probeContentType(mediaTypeSource);
+            if(probeContentType == null) {
+                System.out.println("probeContentType is null");
+                probeContentType = new Tika().detect(file);
+            }
+            System.out.println("probeContentType : " + probeContentType);
+            MediaType mediaType = MediaType.parse(probeContentType);
+            System.out.println("mediaType : " + mediaType.toString());
+
             RequestBody formBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("uid", uid)
                     .addFormDataPart("project", project)
                     .addFormDataPart("arbo", arbo)
-                    .addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse(Files.probeContentType(mediaTypeSource)), file))
+                    .addFormDataPart("file", file.getName(), RequestBody.create(mediaType, file))
                     .build();
 
             Request request = new Request.Builder().url(url + "/api/v1/upload?" + getAuthParams()).post(formBody).build();
@@ -75,19 +86,32 @@ public class Akta {
         return Optional.empty();
     }
 
-    public Optional<AktaFile> upload(String uid, String project, String fileName, String contentType, byte[] data) throws AktaException {
-        return upload(uid, project, "", fileName, contentType, data);
+    public Optional<AktaFile> upload(String uid, String project, String fileName, byte[] data) throws AktaException {
+        return upload(uid, project, "", fileName, null, data);
+    }
+
+    public Optional<AktaFile> upload(String uid, String project, String arbo, String fileName, byte[] data) throws AktaException {
+        return upload(uid, project, arbo, fileName, null, data);
     }
 
     public Optional<AktaFile> upload(String uid, String project, String arbo, String fileName, String contentType, byte[] data) throws AktaException {
         try {
             OkHttpClient client = new OkHttpClient();
+
+            if(contentType == null) {
+                System.out.println("contentType is null");
+                contentType = new Tika().detect(data);
+            }
+            System.out.println("contentType : " + contentType);
+            MediaType mediaType = MediaType.parse(contentType);
+            System.out.println("mediaType : " + mediaType.toString());
+
             RequestBody formBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
                     .addFormDataPart("uid", uid)
                     .addFormDataPart("project", project)
                     .addFormDataPart("arbo", arbo)
-                    .addFormDataPart("file", fileName, RequestBody.create(MediaType.parse(contentType), data))
+                    .addFormDataPart("file", fileName, RequestBody.create(mediaType, data))
                     .build();
 
             Request request = new Request.Builder().url(url + "/api/v1/upload?" + getAuthParams()).post(formBody).build();
