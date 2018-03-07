@@ -6,6 +6,7 @@ public class AktaFile {
     public String project;
     public String arbo;
     public String fileName;
+    public int version;
     public AktaUrl urls;
 
     @Override
@@ -15,6 +16,7 @@ public class AktaFile {
                 ", project='" + project + '\'' +
                 ", arbo='" + arbo + '\'' +
                 ", fileName='" + fileName + '\'' +
+                ", version='" + version + '\'' +
                 ", urls=" + urls +
                 '}';
     }
